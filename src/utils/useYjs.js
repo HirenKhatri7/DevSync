@@ -75,10 +75,12 @@ export function useYjsWindows(windowsMap) {
     const result = [];
     windowsMap.forEach((yWindow, id) => {
       if (yWindow instanceof Y.Map) {
+        const yText = yWindow.get('content');
         result.push({
           id,
           title: yWindow.get('title') || '',
-          content: yWindow.get('content') || '',
+          content: yText instanceof Y.Text ? yText.toString() : (yText || ''),
+          yText: yText instanceof Y.Text ? yText : null,
           creator: yWindow.get('creator') || '',
           locked: yWindow.get('locked') ?? true,
           typeOfNode: yWindow.get('typeOfNode') || 'Text',
@@ -99,37 +101,3 @@ export function useYjsWindows(windowsMap) {
   return windows;
 }
 
-/**
- * Hook that listens to Yjs awareness changes and returns an array
- * of remote user awareness states for a specific windowId.
- *
- * Each entry: { clientId, user: { name, color }, cursor: { anchor, head, windowId } }
- */
-export function useAwareness(awareness, windowId) {
-  const [remoteStates, setRemoteStates] = useState([]);
-
-  useEffect(() => {
-    if (!awareness) return;
-
-    const onChange = () => {
-      const localId = awareness.clientID;
-      const states = [];
-      awareness.getStates().forEach((state, clientId) => {
-        if (clientId === localId) return;
-        if (!state.cursor || state.cursor.windowId !== windowId) return;
-        states.push({
-          clientId,
-          user: state.user || { name: 'Anonymous', color: '#888' },
-          cursor: state.cursor,
-        });
-      });
-      setRemoteStates(states);
-    };
-
-    awareness.on('change', onChange);
-    onChange(); // initial
-    return () => awareness.off('change', onChange);
-  }, [awareness, windowId]);
-
-  return remoteStates;
-}

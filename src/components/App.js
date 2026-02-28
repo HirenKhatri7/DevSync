@@ -54,7 +54,7 @@ function App() {
             socket.off('presence:update');
             socket.disconnect();
         }
-    }, [roomId, username]); 
+    }, [roomId, username]);
 
 
 
@@ -66,7 +66,7 @@ function App() {
             setUsername(storedUsername);
         }
     }, []);
-    
+
 
 
     function createWindow() {
@@ -83,7 +83,7 @@ function App() {
         const windowId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
         const yWindow = new Y.Map();
         yWindow.set('title', title);
-        yWindow.set('content', '');
+        yWindow.set('content', new Y.Text());
         yWindow.set('creator', username);
         yWindow.set('locked', true);
         yWindow.set('typeOfNode', selectedType);
@@ -96,7 +96,7 @@ function App() {
         try {
             const response = await axios.post(`${process.env.REACT_APP_SERVER_URL || ''}/api/username`, { roomId: selectedRoomId });
             const newUsername = response.data.username;
-            
+
             localStorage.setItem("roomId", selectedRoomId);
             localStorage.setItem("username", newUsername);
 

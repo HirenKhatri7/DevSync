@@ -11,7 +11,10 @@ const withWindowLogic = (WindowedComponent) => {
         const getYWindow = () => windowsMap && windowsMap.get(value.id);
 
         const handleCopy = () => {
-            navigator.clipboard.writeText(value?.content || "");
+            const yWindow = getYWindow();
+            const yText = yWindow && yWindow.get('content');
+            const text = yText && typeof yText.toString === 'function' ? yText.toString() : (value?.content || '');
+            navigator.clipboard.writeText(text);
         };
 
         const handleDelete = () => {
