@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+
 import "./Sidebar.css";
-import { database } from "../utils/firebaseConfig";
-import { ref, push, onValue, get, off, set } from "firebase/database";
+
 
 const Sidebar = ({isOpen,windows,onRestore,toggleSidebar}) => {
 
