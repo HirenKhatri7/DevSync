@@ -1,63 +1,157 @@
-/* Sidebar container */
+/* ── Sidebar — Stitch design ── */
+
 .sidebar {
-    position: fixed;
-    top: 13;
-    left: -250px; /* Hidden by default */
-    width: 250px;
-    height: calc(100% - 115px); /* Adjust the height to leave space for footer (50px) */
-    bottom: 54px; /* Full height */
-    background-color: var(--primary-color); /* Use primary color from root */
-    color: white; /* Text color from root */
-    overflow-x: hidden; /* Disable horizontal scroll */
-    transition: 0.3s; /* Smooth sliding effect */
-    padding: 15px;
-    z-index: 1000; /* Stay on top of other content */
-    
-}
-  
-/* Sidebar visible */
-.sidebar.open {
-    left: 0; /* Slide into view */
-}
-  
-/* Sidebar links */
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-  
-.sidebar ul li {
-    margin: 20px 0;
-}
-  
-.sidebar ul li a {
-    color: white; /* Text color from root */
-    text-decoration: none;
-    font-size: 18px;
-}
-  
-.sidebar ul li a:hover {
-    text-decoration: underline;
-    color: var(--secondary-color); /* Change color on hover */
-}
-  
-/* Toggle button */
-.toggle-button {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    padding: 10px 15px;
-    background-color: var(--primary-color); /* Primary color for button */
-    color: var(--background-color); /* Text color */
-    border: none;
-    cursor: pointer;
-    z-index: 1100; /* Stay above sidebar */
-}
-  
-.toggle-button:hover {
-    background-color: var(--secondary-color); /* Hover effect for button */
+  position: fixed;
+  top: 56px;
+  left: -264px;
+  width: 264px;
+  height: calc(100vh - 56px);
+  background: #2d4461;
+  color: white;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(100, 116, 139, 0.2);
 }
 
-button{
-    color: white;
+.sidebar.open {
+  left: 0;
+}
+
+/* Section headers */
+.sidebar-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  margin-bottom: 10px;
+}
+
+.sidebar-section-header .material-symbols-outlined {
+  font-size: 16px;
+  color: #94a3b8;
+}
+
+.sidebar-section-header span:last-child {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* Scrollable content */
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Window list */
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar ul li button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #cbd5e1;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.sidebar ul li button:hover {
+  background: rgba(100, 116, 139, 0.2);
+  color: white;
+}
+
+.sidebar ul li button .material-symbols-outlined {
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+/* Participants */
+.participants-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.participant {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.participant-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.participant-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.participant-name {
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Close button at top */
+.sidebar-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-close:hover {
+  background: rgba(100, 116, 139, 0.3);
+  color: white;
 }

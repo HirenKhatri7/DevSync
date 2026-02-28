@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import { database } from "../utils/firebaseConfig";
-import { ref, set, get, child } from "firebase/database";
 import styles from "./RoomManager.module.css";
-import {
-  Button,
-  TextField,
-} from "@mui/material";
+import api from "../utils/api";
 
 const JoinCreateCard = ({ onRoomJoin, type }) => {
   const [roomId, setRoomId] = useState("");
@@ -14,89 +9,106 @@ const JoinCreateCard = ({ onRoomJoin, type }) => {
   const [newPassword, setNewPassword] = useState("");
 
   const handleJoinRoom = async () => {
-    const dbRef = ref(database);
-    const roomSnapshot = await get(child(dbRef, `rooms/${roomId}`));
-    if (roomSnapshot.exists() && roomSnapshot.val().password === password) {
+    if (!roomId || !password) {
+      alert("Please enter a Room ID and password.");
+      return;
+    }
+    try {
+      await api.post('/rooms/join', { roomId, password });
       onRoomJoin(roomId);
-    } else {
-      alert("Invalid room ID or password");
+    } catch (error) {
+      console.error("Error joining room:", error);
+      alert(error.response?.data?.error || "Failed to join room.");
     }
   };
 
   const handleCreateRoom = async () => {
-    await set(ref(database, `rooms/${newRoomId}`), {
-      password: newPassword,
-      windows: {},
-    });
-    onRoomJoin(newRoomId);
+    if (!newRoomId || !newPassword) {
+      alert("Please enter a new Room ID and password.");
+      return;
+    }
+    try {
+      await api.post('/rooms/create', { roomId: newRoomId, password: newPassword });
+      onRoomJoin(newRoomId);
+    } catch (error) {
+      console.error("Error creating room:", error);
+      alert(error.response?.data?.error || "Failed to create room.");
+    }
   };
 
   if (type === "Join") {
     return (
-      <div id={styles.roomJoinCard}>
-        <div className={styles.flexColumn}>
-          <h2 className={styles.marginTop10px}>Join Room</h2>
-          <TextField
-            margin="normal"
-            id="outlined-basic-join-roomId"
-            label="Room id"
-            variant="outlined"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-          />
-
-          <TextField
-            id="outlined-basic-join-roomPassword"
-            label="password"
-            type="password"
-            variant="outlined"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Button
-            variant="contained"
-            onClick={handleJoinRoom}
-            size="large"
-            style={ { marginTop : '15%'}}
-          >
-            Join Room
-          </Button>
+      <div className={styles.formGroup}>
+        <div className={styles.inputGroup}>
+          <label className={styles.inputLabel}>Room ID</label>
+          <div className={styles.inputWrapper}>
+            <span className="material-symbols-outlined">tag</span>
+            <input
+              className={styles.inputField}
+              type="text"
+              placeholder="e.g. my-project-room"
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
+            />
+          </div>
         </div>
+        <div className={styles.inputGroup}>
+          <label className={styles.inputLabel}>Password</label>
+          <div className={styles.inputWrapper}>
+            <span className="material-symbols-outlined">lock</span>
+            <input
+              className={styles.inputField}
+              type="password"
+              placeholder="Room password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+        </div>
+        <button className={styles.submitBtn} onClick={handleJoinRoom}>
+          <span>Join Session</span>
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+        </button>
+        <p className={styles.footerText}>
+          Need to start a new session?{" "}
+          <a href="#create" onClick={(e) => { e.preventDefault(); }}>Create Room</a>
+        </p>
       </div>
     );
   }
 
   return (
-    <div id={styles.roomJoinCard}>
-        <h2 className={styles.marginTop10px}>Create Room</h2>
-
-        <TextField
-          margin="normal"
-          id="outlined-basic-create-roomId"
-          label="New Room ID"
-          variant="outlined"
-          value={newRoomId}
-          onChange={(e) => setNewRoomId(e.target.value)}
-        />
-
-        <TextField
-          id="outlined-basic-create-roomPassword"
-          type="password"
-          label="password"
-          variant="outlined"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-
-        <Button
-          variant="contained"
-          onClick={handleCreateRoom}
-          size="large"
-          className={styles.marginTop10px}
-          style={ { marginTop : '15%'}}
-        >
-          Create Room
-        </Button>
+    <div className={styles.formGroup}>
+      <div className={styles.inputGroup}>
+        <label className={styles.inputLabel}>Room Name</label>
+        <div className={styles.inputWrapper}>
+          <span className="material-symbols-outlined">tag</span>
+          <input
+            className={styles.inputField}
+            type="text"
+            placeholder="e.g. backend-api"
+            value={newRoomId}
+            onChange={(e) => setNewRoomId(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className={styles.inputGroup}>
+        <label className={styles.inputLabel}>Password</label>
+        <div className={styles.inputWrapper}>
+          <span className="material-symbols-outlined">lock</span>
+          <input
+            className={styles.inputField}
+            type="password"
+            placeholder="Set a room password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+        </div>
+      </div>
+      <button className={styles.submitBtn} onClick={handleCreateRoom}>
+        <span>Create Room</span>
+        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add_circle</span>
+      </button>
     </div>
   );
 };

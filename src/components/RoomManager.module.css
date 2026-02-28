@@ -1,53 +1,260 @@
-#roomJoinCard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    border-radius: 20px;
-    background-color: #ffffff; /* White background for the card */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    width: 100%;
-    max-width: 400px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  #roomJoinCard:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-  }
-  
-  .mainContent {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20vh;
-    width: 100%;
-  }
-  
-  .marginTop10px {
-    margin-top: 10px;
-    text-align: center;
-  }
-  
-  .flexColumn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .textField {
-    margin-bottom: 15px;
-    width: 100%;
-    max-width: 400px; /* Limit width for text fields */
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    transition: border-color 0.3s ease;
-  }
-  
-  .textField:focus {
-    border-color: var(--primary-color); /* Highlight border on focus */
-  }
+/* ── Room Manager — Stitch-based design ── */
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: #f8f9fa;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background decoration blobs */
+.mainContent::before,
+.mainContent::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.mainContent::before {
+  width: 380px;
+  height: 380px;
+  background: #355070;
+  top: 15%;
+  left: 20%;
+}
+
+.mainContent::after {
+  width: 280px;
+  height: 280px;
+  background: #e56b6f;
+  top: 30%;
+  right: 20%;
+}
+
+/* Toggle group */
+.toggleButtonGroup {
+  margin-bottom: 0;
+  z-index: 1;
+}
+
+/* Card */
+.roomCard {
+  width: 100%;
+  max-width: 460px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+  border: 1px solid #e2e8f0;
+  padding: 36px 40px;
+  z-index: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.roomCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08);
+}
+
+/* Header section */
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 28px;
+  gap: 6px;
+}
+
+.logoIcon {
+  width: 56px;
+  height: 56px;
+  background: rgba(53, 80, 112, 0.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  color: #355070;
+}
+
+.logoIcon .material-symbols-outlined {
+  font-size: 32px;
+}
+
+.brandName {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #355070;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Segmented toggle */
+.segmentedToggle {
+  display: flex;
+  background: #f1f5f9;
+  padding: 5px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+}
+
+.segmentBtn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #64748b;
+  background: transparent;
+}
+
+.segmentBtn.active {
+  background: white;
+  color: #355070;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+}
+
+/* Form */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inputLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.inputWrapper .material-symbols-outlined {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #94a3b8;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.inputField {
+  width: 100%;
+  padding: 12px 12px 12px 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  background: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.inputField:focus {
+  border-color: #355070;
+  box-shadow: 0 0 0 3px rgba(53, 80, 112, 0.12);
+}
+
+.inputField::placeholder {
+  color: #94a3b8;
+}
+
+.inputWrapper:focus-within .material-symbols-outlined {
+  color: #355070;
+}
+
+/* Submit button */
+.submitBtn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  background: #e56b6f;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(229, 107, 111, 0.25);
+  transition: all 0.2s ease;
+}
+
+.submitBtn:hover {
+  background: #d65a5e;
+  box-shadow: 0 6px 16px rgba(229, 107, 111, 0.35);
+}
+
+.submitBtn:active {
+  transform: scale(0.98);
+}
+
+/* Footer link text */
+.footerText {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.footerText a {
+  color: #355070;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Page footer */
+.pageFooter {
+  margin-top: 40px;
+  font-size: 13px;
+  color: #94a3b8;
+  z-index: 1;
+}
+
+.pageFooter a {
+  color: #64748b;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.pageFooter a:hover {
+  color: #e56b6f;
+}

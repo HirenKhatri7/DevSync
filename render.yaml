@@ -1,0 +1,34 @@
+# Render Blueprint — DevSync
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # ── Web Service (Express API + React static build) ──
+  - type: web
+    name: devsync
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build && cd server && npm install
+    startCommand: cd server && node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: CLIENT_ORIGIN
+        sync: false          # set to your Render URL, e.g. https://devsync.onrender.com
+      - key: MONGODB_URI
+        sync: false          # paste your MongoDB Atlas connection string
+      - key: REDIS_URL
+        fromService:
+          name: devsync-redis
+          type: redis
+          property: connectionString
+      - key: REACT_APP_SERVER_URL
+        value: ""            # leave empty — client is served from same origin in production
+
+  # ── Redis ──
+  - type: redis
+    name: devsync-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []          # allow only internal connections

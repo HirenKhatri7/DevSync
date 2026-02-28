@@ -1,34 +1,45 @@
 import React, { useState } from "react";
 import styles from "./RoomManager.module.css";
-import {
-  ToggleButton,
-  ToggleButtonGroup,
-} from "@mui/material";
 import JoinCreateCard from "./JoinCreateCard";
 
 const RoomManager = ({ onRoomJoin }) => {
-  const [alignment, setAlignment] = React.useState("web");
   const [cardType, setCardType] = useState("Join");
-
-  const handleChange = (event, newAlignment) => {
-    setCardType(event.target.value);
-    setAlignment(newAlignment);
-  };
 
   return (
     <div className={styles.mainContent}>
-      <ToggleButtonGroup
-        className={styles.toggleButtonGroup}
-        color="primary"
-        value={alignment}
-        exclusive
-        onChange={handleChange}
-        aria-label="Platform"
-      >
-        <ToggleButton value="Join">Join Room</ToggleButton>
-        <ToggleButton value="Create">Create Room</ToggleButton>
-      </ToggleButtonGroup>
-      <JoinCreateCard onRoomJoin={onRoomJoin} type={cardType} />
+      <div className={styles.roomCard}>
+        {/* Header */}
+        <div className={styles.cardHeader}>
+          <div className={styles.logoIcon}>
+            <span className="material-symbols-outlined">sync_alt</span>
+          </div>
+          <h2 className={styles.brandName}>DevSync</h2>
+          <p className={styles.subtitle}>Real-time collaborative editing</p>
+        </div>
+
+        {/* Segmented Toggle */}
+        <div className={styles.segmentedToggle}>
+          <button
+            className={`${styles.segmentBtn} ${cardType === "Join" ? styles.active : ""}`}
+            onClick={() => setCardType("Join")}
+          >
+            Join Room
+          </button>
+          <button
+            className={`${styles.segmentBtn} ${cardType === "Create" ? styles.active : ""}`}
+            onClick={() => setCardType("Create")}
+          >
+            Create Room
+          </button>
+        </div>
+
+        {/* Form */}
+        <JoinCreateCard onRoomJoin={onRoomJoin} type={cardType} />
+      </div>
+
+      <p className={styles.pageFooter}>
+        under development — <a href="https://github.com/HirenKhatri7/DevSync">report issues on GitHub</a>
+      </p>
     </div>
   );
 };

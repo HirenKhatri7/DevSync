@@ -4,7 +4,7 @@ import React from "react";
 
 
 
-const ParentComponent = ({ children}) => {
+const ParentComponent = ({ children }) => {
   return (
     
     <div className="parent-component">    

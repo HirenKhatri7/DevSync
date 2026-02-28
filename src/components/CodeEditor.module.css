@@ -1,127 +1,180 @@
-/* Editor Container */
-.editor {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
-    box-shadow: 
-      0 10px 30px -5px rgba(0, 0, 0, 0.1),
-      0 2px 8px -3px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    resize: both;
-    min-width: 340px;
-    min-height: 250px;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .titleBar {
-    display: flex;
-    align-items: center;
-    padding: 12px 16px;
-    background: linear-gradient(to right, #f8f9fa, #ffffff);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    user-select: none;
-  }
-  
-  .dragHandle {
-    color: #8b95a1;
-    margin-right: 12px;
-    cursor: move;
-  }
-  
-  .title {
-    flex: 1;
-    font-size: 14px;
-    font-weight: 600;
-    color: #2d3748;
-  }
-  
-  .controls {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .control:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: #334155;
-  }
-  
-  .control.active {
-    background: #edf2ff;
-    color: #3b82f6;
-  }
-  
-  .editorContainer {
-    flex: 1;
-    position: relative;
-    min-height: 0px;
-  }
+/* ── Code Editor tile — Stitch design ── */
 
-  .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 16px;
-    background: #f8fafc;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  }
-  
-  .languageSelect {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    background: white;
-    color: #334155;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .languageSelect:hover {
-    border-color: #cbd5e1;
-  }
-  
-  .runButton {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .runButton:hover {
-    background: #2563eb;
-  }
-  
-  .output {
-    padding: 16px;
-    background: #f8fafc;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-    font-size: 14px;
-    line-height: 1.5;
-    max-height: 150px;
-    overflow-y: auto;
-  }
+.editor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #1e1e1e;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 40px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.dragHandle {
+  color: #6b7280;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  cursor: grab;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.title {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.controls {
+  display: flex;
+  gap: 4px;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.control:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #d1d5db;
+}
+
+.control:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.control.active {
+  background: rgba(53, 80, 112, 0.25);
+  color: #93c5fd;
+}
+
+.editorContainer {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.languageSelect {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2d2d2d;
+  color: #d4d4d4;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.languageSelect:hover {
+  border-color: #555;
+}
+
+.languageSelect:focus {
+  outline: none;
+  border-color: #355070;
+}
+
+.runButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  background: #16a34a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  margin-left: auto;
+}
+
+.runButton:hover {
+  background: #15803d;
+}
+
+.runButton:active {
+  background: #166534;
+}
+
+.output {
+  padding: 12px 16px;
+  background: #181818;
+  border-top: 1px solid #333;
+  font-family: 'Menlo', 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d4d4d4;
+  max-height: 150px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.output::-webkit-scrollbar {
+  width: 6px;
+}
+
+.output::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.output::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+.output::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
