@@ -1,9 +1,10 @@
 import { Code } from "./CodeEditor";
 import Text from "./text";
+import DrawingComponent from "./DrawingComponent";
 
 
 
-const ChildrenComponent = ({ value, currentUserName, roomId, TypeOfNode, toggleMinimize, awareness, windowsMap }) => {
+const ChildrenComponent = ({ value, currentUserName, roomId, TypeOfNode, toggleMinimize, awareness, windowsMap, synced }) => {
 
     return (
         (() => {
@@ -23,6 +24,18 @@ const ChildrenComponent = ({ value, currentUserName, roomId, TypeOfNode, toggleM
                     toggleMinimize={toggleMinimize}
                     awareness={awareness}
                     windowsMap={windowsMap} />
+            } else if (TypeOfNode === "Drawing") {
+                return (
+                    <DrawingComponent
+                        value={value}
+                        currentUserName={currentUserName}
+                        roomId={roomId}
+                        toggleMinimize={toggleMinimize}
+                        awareness={awareness}
+                        windowsMap={windowsMap}
+                        synced={synced}
+                    />
+                );
             }
         })()
     );

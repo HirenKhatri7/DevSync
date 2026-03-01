@@ -34,7 +34,7 @@ function App() {
     const [participants, setParticipants] = useState([]);
 
     // --- Yjs connection ---
-    const { windowsMap, awareness, connected } = useYjs(roomId);
+    const { windowsMap, awareness, connected, synced } = useYjs(roomId);
     const childrenData = useYjsWindows(windowsMap);
     const windowList = childrenData.map(w => ({ id: w.id, title: w.title, type: w.typeOfNode }));
 
@@ -83,10 +83,16 @@ function App() {
         const windowId = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
         const yWindow = new Y.Map();
         yWindow.set('title', title);
-        yWindow.set('content', new Y.Text());
+        yWindow.set('typeOfNode', selectedType);
         yWindow.set('creator', username);
         yWindow.set('locked', true);
-        yWindow.set('typeOfNode', selectedType);
+        if (selectedType === "Drawing") {
+            yWindow.set("elements", new Y.Array());
+            yWindow.set("assets", new Y.Map());
+        } else {
+            yWindow.set('content', new Y.Text());
+        }
+
         windowsMap.set(windowId, yWindow);
 
         handleClose();
@@ -217,6 +223,16 @@ function App() {
                                             <span className="material-symbols-outlined check-icon">check_circle</span>
                                         )}
                                     </button>
+                                    <button
+                                        className={`modal-type-card ${selectedType === "Drawing" ? "selected" : ""}`}
+                                        onClick={() => setSelectedType("Drawing")}
+                                    >
+                                        <span className="material-symbols-outlined">draw</span>
+                                        <span className="type-label">Drawing</span>
+                                        {selectedType === "Drawing" && (
+                                            <span className="material-symbols-outlined check-icon">check_circle</span>
+                                        )}
+                                    </button>
                                 </div>
 
                                 <button className="modal-create-btn" onClick={createWindow}>
@@ -248,6 +264,7 @@ function App() {
                                         toggleMinimize={() => toggleMinimizeWindow(data.id)}
                                         awareness={awareness}
                                         windowsMap={windowsMap}
+                                        synced={synced}
                                     />
                                 ))}
                         </ParentComponent>

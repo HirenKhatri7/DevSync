@@ -23,35 +23,54 @@ async function getYDoc(docName) {
   const doc = new Y.Doc();
   const awareness = new awarenessProtocol.Awareness(doc);
 
-  // When any awareness change happens, broadcast to all connected clients
-  awareness.on('update', ({ added, updated, removed }, conn) => {
+  // 🔥 FIRST load persisted state
+  await mongoPersistence.bindState(docName, doc);
+
+  const entry = {
+    doc,
+    awareness,
+    conns: new Map(),
+    persistTimeout: null,
+  };
+
+  // 🔥 THEN register in memory
+  docs.set(docName, entry);
+
+  console.log(`[Yjs] Document "${docName}" loaded`);
+
+  // -----------------------------
+  // Awareness broadcasting
+  // -----------------------------
+  awareness.on('update', ({ added, updated, removed }) => {
     const changedClients = added.concat(updated, removed);
-    const entry = docs.get(docName);
-    if (!entry) return;
 
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, messageAwareness);
     encoding.writeVarUint8Array(
       encoder,
-      awarenessProtocol.encodeAwarenessUpdate(awareness, changedClients)
+      awarenessProtocol.encodeAwarenessUpdate(
+        awareness,
+        changedClients
+      )
     );
+
     const message = encoding.toUint8Array(encoder);
 
     entry.conns.forEach((_, ws) => {
-      if (ws.readyState === 1) { // WebSocket.OPEN
+      if (ws.readyState === 1) {
         ws.send(message);
       }
     });
   });
 
-  // When the doc updates, broadcast to all connected clients
+  // -----------------------------
+  // Document updates
+  // -----------------------------
   doc.on('update', (update, origin) => {
-    const entry = docs.get(docName);
-    if (!entry) return;
-
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, messageSync);
     syncProtocol.writeUpdate(encoder, update);
+
     const message = encoding.toUint8Array(encoder);
 
     entry.conns.forEach((_, ws) => {
@@ -59,13 +78,17 @@ async function getYDoc(docName) {
         ws.send(message);
       }
     });
+
+    // Debounced persistence
+    if (entry.persistTimeout) {
+      clearTimeout(entry.persistTimeout);
+    }
+
+    entry.persistTimeout = setTimeout(async () => {
+      await mongoPersistence.writeState(docName, doc);
+      console.log(`[Yjs] Persisted "${docName}"`);
+    }, 2000);
   });
-
-  const entry = { doc, awareness, conns: new Map() };
-  docs.set(docName, entry);
-
-  // Load persisted state from MongoDB
-  await mongoPersistence.bindState(docName, doc);
 
   return entry;
 }
@@ -165,9 +188,15 @@ async function setupConnection(ws, docName) {
 
     // If no more connections, persist and clean up
     if (entry.conns.size === 0) {
-      await mongoPersistence.writeState(docName, entry.doc);
-      entry.doc.destroy();
-      docs.delete(docName);
+      if (entry.persistTimeout) {
+    clearTimeout(entry.persistTimeout);
+  }
+
+  await mongoPersistence.writeState(docName, entry.doc);
+
+  entry.doc.destroy();
+  docs.delete(docName);
+      
       console.log(`[Yjs] Document "${docName}" unloaded (no connections)`);
     }
   });

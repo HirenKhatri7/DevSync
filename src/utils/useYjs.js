@@ -10,12 +10,13 @@ const WS_URL = process.env.REACT_APP_YJS_WS_URL || (
 
 /**
  * Hook that connects to the Yjs WebSocket server for a given room.
- * Returns { ydoc, provider, awareness, windowsMap, connected }
+ * Returns { ydoc, provider, awareness, windowsMap, connected, synced }
  */
 export function useYjs(roomId) {
   const ydocRef = useRef(null);
   const providerRef = useRef(null);
   const [connected, setConnected] = useState(false);
+  const [synced, setSynced] = useState(false);
   const [windowsMap, setWindowsMap] = useState(null);
   const [awareness, setAwareness] = useState(null);
 
@@ -34,6 +35,12 @@ export function useYjs(roomId) {
       setConnected(status === 'connected');
     });
 
+    // Important for bindings like y-excalidraw: avoid pushing an empty initial scene
+    // before we have received the authoritative remote state.
+    provider.on('sync', (isSynced) => {
+      setSynced(Boolean(isSynced));
+    });
+
     const wMap = ydoc.getMap('windows');
     setWindowsMap(wMap);
     setAwareness(provider.awareness);
@@ -47,6 +54,7 @@ export function useYjs(roomId) {
       setWindowsMap(null);
       setAwareness(null);
       setConnected(false);
+      setSynced(false);
     };
   }, [roomId]);
 
@@ -56,6 +64,7 @@ export function useYjs(roomId) {
     awareness,
     windowsMap,
     connected,
+    synced,
   };
 }
 
