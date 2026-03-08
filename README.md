@@ -1,70 +1,137 @@
-# Getting Started with Create React App
+# DevSync
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A real-time collaborative workspace where multiple users can simultaneously edit code, rich text, and drawings inside shared "windows" — all synced live via [Yjs](https://yjs.dev/) CRDTs.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Room-based collaboration** — Create or join password-protected rooms. Each participant gets a randomly generated username and color.
+- **Multiple window types** — Spawn draggable, resizable windows inside a shared canvas:
+  - **Code Editor** — Monaco Editor with syntax highlighting, multi-cursor support (via `y-monaco`), and in-browser code execution (Python, Java, C, C++, C#) powered by the [Piston API](https://github.com/engineer-man/piston).
+  - **Text Editor** — Collaborative rich-text editing backed by a shared `Y.Text`.
+  - **Drawing** — Collaborative whiteboard built on [Excalidraw](https://excalidraw.com/) with real-time sync via `y-excalidraw`.
+- **Presence & cursors** — See who's online and watch live cursor positions, broadcast through Redis pub/sub and Socket.IO.
+- **Persistent documents** — Yjs document state is periodically snapshotted to MongoDB, so room content survives server restarts.
+- **Lock / unlock** — Window creators can lock editing to prevent others from modifying content.
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, Material UI, Monaco Editor, Excalidraw, Yjs (`y-monaco`, `y-excalidraw`, `y-websocket`) |
+| Backend | Node.js, Express 5, native `ws` WebSocket server, Socket.IO |
+| Real-time sync | Yjs CRDT over WebSocket (`/yjs/<roomId>`) |
+| Presence | Socket.IO + Redis pub/sub |
+| Database | MongoDB (room credentials & Yjs snapshots) |
+| Cache | Redis (cursor broadcasting) |
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Project Structure
 
-### `npm test`
+```
+├── public/                  # CRA static assets
+├── src/                     # React frontend
+│   ├── components/
+│   │   ├── App.js           # Main app: room gating, header, window creation
+│   │   ├── RoomManager.js   # Join / Create room landing page
+│   │   ├── JoinCreateCard.js# Form logic for room join & create
+│   │   ├── CodeEditor.js    # Monaco-based collaborative code editor
+│   │   ├── DrawingComponent.js  # Excalidraw-based collaborative whiteboard
+│   │   ├── TextComponent.js # Simple collaborative text area
+│   │   ├── ChildrenComponent.js # Renders the correct window type
+│   │   ├── ParentComponent.js   # Canvas container for windows
+│   │   ├── DraggableComponent.js # Wrapper for drag behavior
+│   │   ├── withWindowLogic.js    # HOC: shared lock/delete/copy/title logic
+│   │   ├── Sidebar.js       # Side panel listing windows & participants
+│   │   └── Window.js        # Legacy window component
+│   └── utils/
+│       ├── Socket.js        # Socket.IO client singleton
+│       ├── useYjs.js        # React hooks for Yjs provider & window state
+│       └── api.js           # Axios client for REST API
+├── server/                  # Express backend
+│   ├── index.js             # HTTP server, WS upgrade, Socket.IO init
+│   ├── Socket.js            # Socket.IO setup + Redis cursor listener
+│   ├── config/env.js        # Environment variable defaults
+│   ├── handlers/
+│   │   ├── roomHandler.js   # Room join, presence tracking, disconnect
+│   │   ├── cursorHandler.js # Cursor move → Redis publish
+│   │   └── windowHandler.js # (Legacy) Firebase-based window CRUD
+│   ├── models/
+│   │   ├── Room.js          # Mongoose schema: roomId + passwordHash
+│   │   └── YjsDocument.js   # Mongoose schema: binary Yjs snapshots
+│   ├── routes/api.js        # REST endpoints: username, room create/join
+│   ├── services/
+│   │   ├── mongodb.js       # Mongoose connection
+│   │   ├── Redis.js         # ioredis publisher & subscriber clients
+│   │   ├── firebase.js      # Firebase Admin SDK (legacy)
+│   │   └── yjsPersistence.js# Load/save Yjs state to MongoDB
+│   ├── utils/
+│   │   └── usernameGenerator.js  # Random adjective+animal name generator
+│   └── websocket/
+│       └── yjsServer.js     # Custom Yjs WebSocket protocol handler
+├── docker-compose.yml       # Local MongoDB + Redis
+├── render.yaml              # Render.com deploy blueprint
+├── Procfile                 # Heroku-style start command
+└── package.json             # Frontend dependencies & CRA scripts
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Getting Started
 
-### `npm run build`
+### Prerequisites
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Node.js** ≥ 18
+- **MongoDB** (local or Atlas)
+- **Redis** (local or hosted)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 1. Start infrastructure (Docker)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+docker compose up -d
+```
 
-### `npm run eject`
+This launches MongoDB on port 27017 and Redis on port 6379.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 2. Install dependencies
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+# Frontend
+npm install
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+# Backend
+cd server
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 3. Configure environment
 
-## Learn More
+Create `server/.env`:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```env
+MONGODB_URI=mongodb://localhost:27017/devsync
+REDIS_URL=redis://127.0.0.1:6379
+PORT=4000
+CLIENT_ORIGIN=http://localhost:3000
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 4. Run
 
-### Code Splitting
+```bash
+# Terminal 1 — backend
+cd server
+npm start          # Express + WS on http://localhost:4000
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+# Terminal 2 — frontend
+npm start          # CRA dev server on http://localhost:3000
+```
 
-### Analyzing the Bundle Size
+Open http://localhost:3000, create a room with a password, and share the room ID with collaborators.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Environment Variables
 
-### Making a Progressive Web App
+| Variable | Default | Description |
+|---|---|---|
+| `MONGODB_URI` | `mongodb://localhost:27017/devsync` | MongoDB connection string |
+| `REDIS_URL` | `redis://127.0.0.1:6379` | Redis connection string |
+| `PORT` | `4000` | Backend server port |
+| `CLIENT_ORIGIN` | `http://localhost:3000` | Allowed CORS origin |
+| `REACT_APP_SERVER_URL` | `""` (same origin) | Backend URL for the React client |
+| `REACT_APP_YJS_WS_URL` | auto-detected | Yjs WebSocket URL (`ws(s)://host/yjs`) |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
